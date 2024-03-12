@@ -1,10 +1,9 @@
 import json
 import logging
 import sys
-import traceback
 from datetime import datetime, timedelta, timezone
 from logging import LogRecord
-from typing import Callable, Optional
+from typing import Callable
 
 from app.core.settings import app_settings
 
@@ -30,25 +29,9 @@ class BaseFormatter(logging.Formatter):
         return wrapper
 
 
-class CustomJsonFormatter(BaseFormatter):
-    @BaseFormatter._format_log_message
-    def format(self, record: LogRecord) -> Optional[str]:
-        if record.exc_info:
-            return self.formatException(record.exc_info)
-        return None
-
-
-class LocalJsonFormatter(BaseFormatter):
-    @BaseFormatter._format_log_message
-    def format(self, record: LogRecord) -> None:
-        if record.exc_info:
-            traceback.print_exc()
-        return None
-
-
 def reset_loggers() -> None:
     console_handler = logging.StreamHandler(stream=sys.stdout)
-    console_handler.setFormatter(LocalJsonFormatter() if app_settings.local else CustomJsonFormatter())
+    console_handler.setFormatter(BaseFormatter())
     console_handler.setLevel(app_settings.log_level)
     logger.addHandler(console_handler)
     logger.setLevel(app_settings.log_level)

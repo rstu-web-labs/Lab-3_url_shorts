@@ -1,13 +1,10 @@
+from pathlib import Path
 from typing import Literal
 
-from pathlib import Path
-
 from constants.base import LogLevelTypes
-
 from dotenv import load_dotenv
 from pydantic import PositiveInt
 from pydantic_settings import BaseSettings
-
 
 load_dotenv()
 
@@ -63,8 +60,7 @@ class DatabaseSettings(BaseSettings):
         return f"{self.postgres_host_url}{self.db_postgres_name}"
 
 
-class ExtraSettings(BaseSettings):
-    ...
+class ExtraSettings(BaseSettings): ...
 
 
 class Settings(DatabaseSettings, LoggingSettings, ExtraSettings):
@@ -72,5 +68,6 @@ class Settings(DatabaseSettings, LoggingSettings, ExtraSettings):
     app_description: str = APP_DESC
     mock_external_services: bool = False
     local: bool = False
+
 
 app_settings = Settings()
