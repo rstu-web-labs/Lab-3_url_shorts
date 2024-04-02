@@ -44,7 +44,7 @@ def reset_loggers() -> None:
                 break
             try:
                 log.removeHandler(handler)
-            except ValueError:  # in case another thread has already removed it
+            except ValueError: 
                 pass
             repeat_loggers.add(log.name)
         log.addHandler(console_handler)
