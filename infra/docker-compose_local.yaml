@@ -17,7 +17,6 @@ services:
     networks:
       - backend
   app:
-    # restart: always
     build:
       context: ..
       dockerfile: infra/Dockerfile
