@@ -40,11 +40,11 @@ class LoggingSettings(BaseSettings):
 
 
 class DatabaseSettings(BaseSettings):
-    db_postgres_host: str
+    db_postgres_host: str = "localhost"
     db_postgres_port: int = 5432
-    db_postgres_name: str
-    db_postgres_username: str
-    db_postgres_password: str
+    db_postgres_name: str = "short_url_DB"
+    db_postgres_username: str = "alex"
+    db_postgres_password: str = "alex12345"
     db_postgres_timeout: PositiveInt = 5
     db_postgres_driver: Literal["psycopg", "pycopg2"] = "psycopg"
 
