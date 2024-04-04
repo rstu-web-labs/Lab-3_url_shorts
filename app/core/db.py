@@ -4,6 +4,7 @@ from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 from app.core.logger import logger
 from app.core.settings import app_settings
 
+
 Base = type("Base", (DeclarativeBase,), {})
 engine = create_engine(app_settings.postgres_database_url)
 SessionLocal = sessionmaker(engine, class_=Session, expire_on_commit=False)
