@@ -1,0 +1,44 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16.2
+    restart: always
+    env_file:
+      - ../.env
+    environment:
+      POSTGRES_DB: ${DB_POSTGRES_NAME}
+      POSTGRES_USER: ${DB_POSTGRES_USERNAME}
+      POSTGRES_PASSWORD: ${DB_POSTGRES_PASSWORD}
+    ports:
+      - "${DB_POSTGRES_PORT}:5432"
+    volumes:
+      - postgres-db:/var/lib/postgresql
+    networks:
+      - backend
+
+  app:
+    container_name: laboratory3
+    image: alexandrfeed/lab3:1.0
+    restart: always
+    build:
+      context: ..
+      dockerfile: infra/Dockerfile
+    command: sh -c "uvicorn app.main:app --host 0.0.0.0 --port 8080 --workers 4"
+    ports:
+      - "80:8080"
+    env_file:
+      - ../.env
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_DELAY: 5
+    depends_on:
+      - postgres
+    networks:
+      - backend
+volumes:
+  postgres-db:
+
+networks:
+  backend:
+    driver: bridge
