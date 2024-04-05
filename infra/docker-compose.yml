@@ -13,9 +13,9 @@ services:
       - "${DB_POSTGRES_PORT}:5432"
 
   app:
+    image: ryksovv/url-app:v1
     restart: always
-    image: ryksovv/url-app 
-    command: sh -c "uvicorn app.main:app --host 0.0.0.0 --port 8080"
+    command: sh -c "uvicorn app.main:app --port 8080"
     env_file:
       - ../.env
     ports:
