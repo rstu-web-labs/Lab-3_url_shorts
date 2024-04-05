@@ -1,5 +1,11 @@
-from app.core.logger import logger, reset_loggers
-from app.core.settings import app_settings
+from fastapi import FastAPI
+from app.models.endpoints import router as endpoints_router
 
-if not app_settings.local:
-    reset_loggers()
+app = FastAPI(title="Укоротитель Урлов", version="0.1.0")
+
+# Подключаем роутер к основному приложению
+app.include_router(endpoints_router, prefix="/api")
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
