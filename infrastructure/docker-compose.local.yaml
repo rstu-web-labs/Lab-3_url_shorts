@@ -1,0 +1,31 @@
+services:
+  postgres:
+    image: postgres:16.2
+#    restart: always
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: "lab3"
+      POSTGRES_USER: "lab3"
+      POSTGRES_PASSWORD: "lab3"
+    ports:
+      - "${PORT}:5432"
+    volumes:
+      - ./database:/var/lib/postgresql/data
+
+  url:
+    container_name: url
+    build:
+      context: ..
+      dockerfile: infrastructure/Dockerfile
+#    restart: always
+    command: "uvicorn app.main:app --host 0.0.0.0 --port 8080"
+    env_file:
+      - .env
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+
+volumes:
+  postgres-data:
