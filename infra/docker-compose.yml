@@ -13,7 +13,7 @@ services:
       - "${DB_POSTGRES_PORT}:5432"
 
   app:
-    image: ryksovv/url-app:v1
+    image: ryksovv/url-app:v1.1
     restart: always
     command: sh -c "uvicorn app.main:app --port 8080"
     env_file:

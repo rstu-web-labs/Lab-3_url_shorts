@@ -1,4 +1,4 @@
-from sqlalchemy import Integer, String, Column, Date
+from sqlalchemy import Integer, String, Column
 from app.core.db import Base
 
 class Post(Base):
