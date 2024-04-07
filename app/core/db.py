@@ -19,5 +19,5 @@ def check_db_connection() -> bool:
         try:
             return bool(session.execute(text("SELECT 1")))
         except ConnectionError as error:
-            logger.critical(f"Postgres connection erro: {error}")
+            logger.critical(f"Postgres connection error: {error}")
     return False
