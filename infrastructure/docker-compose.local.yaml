@@ -10,4 +10,6 @@ services:
       POSTGRES_USER: ${DB_POSTGRES_USER}
       POSTGRES_PASSWORD: ${DB_POSTGRES_PASSWORD}
     ports:
-      - 8001:5432
+      - ${DB_POSTGRES_PORT}:5432
+    volumes:
+      - ../postgres:/var/lib/postgresql/data

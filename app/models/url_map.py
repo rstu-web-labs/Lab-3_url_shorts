@@ -1,8 +1,7 @@
 from sqlalchemy import Column, String, DateTime, Integer, Table
-from sqlalchemy.orm import declarative_base
+from app.core.db import Base
 from sqlalchemy.sql import func
 
-Base = declarative_base()
 
 class UrlMap(Base):
     __tablename__ = 'url_map'
