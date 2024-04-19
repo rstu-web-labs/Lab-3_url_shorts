@@ -1,0 +1,13 @@
+version: '3.9'
+
+services:  
+  postgres_db:
+    container_name: postgres
+    image: postgres:16.1
+    environment:
+      env_file: ./.env
+      POSTGRES_DB: ${db_postgres_name}
+      POSTGRES_USER: ${db_postgres_username}
+      POSTGRES_PASSWORD: ${db_postgres_password}
+    ports:
+      - "${db_postgres_port}:5432"
