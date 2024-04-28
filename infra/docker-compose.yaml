@@ -1,0 +1,20 @@
+version: "3.9"
+services:
+
+  postgres:
+    image: postgres:15
+    env_file: .env
+    environment:
+      POSTGRES_DB: ${DB_POSTGRES_NAME}
+      POSTGRES_USER: ${DB_POSTGRES_USERNAME}
+      POSTGRES_PASSWORD: ${DB_POSTGRES_PASSWORD}
+  
+  app:
+    image: olgashep/lab3_ola:v1.0
+    restart: always
+    command: sh -c "uvicorn app.main:app --port 8080"
+    env_file:
+      - ../.env
+    ports:
+      - "${APP_EXTERNAL_PORT}:8080"
+
