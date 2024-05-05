@@ -9,21 +9,18 @@ from app.short import router as router_short
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    delete_tables()
-    print("База очищена")
+    # delete_tables()
+    # print("База очищена")
     create_database()
     print("База готова к работе")
     yield
     print("Выключение")
 
 
-app = FastAPI(
-    title="Укротитель Урлов", lifespan=lifespan
-)
+app = FastAPI(title="Укротитель Урлов", lifespan=lifespan)
 
-app.include_router(router_short)   
-    
+app.include_router(router_short)
+
 
 if not app_settings.local:
     reset_loggers()
-    
