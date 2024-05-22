@@ -8,14 +8,13 @@ from app.router import router as ttt
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     create_table_database()
-    print('База Запущена') 
 
     yield
     print('Все сламалося. Больше не работает')
 
 
 app = FastAPI(
-    title='Что то там... Ссылки',
+    title='Сокращение ссылок',
     lifespan=lifespan
 )
 

@@ -1,39 +1,48 @@
 import sqlalchemy
 from app.core.db import Base, engine
-from app.models.url_map import Base_URL, Short_URL
+from app.models.url_map import Base_URL
 from sqlalchemy.orm import Session
-from app.models.url_map import Base_URL, Short_URL
+from app.models.url_map import Base_URL
 from app.models.schema import  Forma_Base_URL, Forma_Short_URL
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy import select, insert
+from typing import List
 
-def check_originality_short_link(short_URL: str, db: Session):
-    try:
-        result = db.query(Short_URL).filter(Short_URL.short_url == short_URL).one()
+def set_original_url(db: Session, data: Base_URL) -> bool:
+    stmt = insert(Base_URL).values(url=str(data.url), short_url=str(data.short_url))
+    db.execute(stmt)
+    db.commit()
+    return True
+
+
+def get_short_url_in(db: Session, short_url: str):
+    stmt = select(Base_URL).where(Base_URL.short_url == short_url)
+    row = db.execute(stmt).first()
+    if row:
         return True
-    except NoResultFound:
-        return False
-
-    
-def add_short_and_base_link(data: Forma_Base_URL, db: Session):
-    try:
-        result = db.query(Base_URL).filter(Base_URL.url == str(data.url)).one()
-    except NoResultFound:
-        add_value_base_url_db = Base_URL(url = str(data.url))
-        db.add(add_value_base_url_db)
-        db.commit()
-    finally:
-        result = db.query(Base_URL).filter(Base_URL.url == str(data.url)).one()
-        add_value_short_url_db = Short_URL(url = result.id, short_url = str(data.short_URL))
-        db.add(add_value_short_url_db)
-        db.commit()
-
-
-def get_base_url_from_short_url(data: Forma_Short_URL, db: Session)->str:
-    inner_join_query = db.query(Base_URL, Short_URL).join(Short_URL, Base_URL.id == Short_URL.url).filter(Short_URL.short_url == data.short_URL).first()
-    if inner_join_query:
-        original, short_url = inner_join_query
-        return original.url
     return False
+
+
+def get_short_url_join(db: Session, data: Base_URL) -> str:
+    print(data.short_url)
+    stmt = select(Base_URL).where(Base_URL.short_url == data.short_url)
+    row = db.execute(stmt).first()
+    if row:
+        return row[0].url
+    return False
+
+def get_short_url_in_all(db: Session, short_urls: List[str]):
+    stmt = select(Base_URL).where(Base_URL.short_url.in_(short_urls))
+    row = db.execute(stmt).all()
+    found_urls = [item.short_url for item in row]
+    if len(found_urls) > 0:
+        not_found_url = []
+        for item_random in short_urls:
+            if item_random not in found_urls:
+                not_found_url.append(item_random)
+        return not_found_url
+    else:
+        return short_urls
     
     
         
