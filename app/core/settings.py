@@ -1,3 +1,5 @@
+from app.config import REDIS_HOST
+
 from pathlib import Path
 from typing import Literal
 
@@ -8,7 +10,6 @@ from pydantic_settings import BaseSettings
 from app.core.constants.base import LogLevelTypes
 
 load_dotenv()
-
 
 APP_DESC = """---
 ### Описание
@@ -26,7 +27,6 @@ APP_DESC = """---
 `Authorization: Bearer {token}`
 """
 
-
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 MEDIA_DIR = BASE_DIR / "media"
 STATIC_DIR = BASE_DIR / "static"
@@ -39,6 +39,20 @@ class LoggingSettings(BaseSettings):
     log_level: str = LogLevelTypes.INFO
 
 
+class RedisSettings(BaseSettings):
+    redis_password: str = 'redis'
+    redis_port: str = '6379'
+    celery_redis_db: str = '0'
+
+    @property
+    def celery_broker_url(self):
+        return f"redis://:{self.redis_password}@{REDIS_HOST}:{self.redis_port}/{self.celery_redis_db}"
+
+    @property
+    def celery_result_backend(self):
+        return f"redis://:{self.redis_password}@{REDIS_HOST}:{self.redis_port}/{self.celery_redis_db}"
+
+
 class DatabaseSettings(BaseSettings):
     db_postgres_host: str
     db_postgres_port: int = 5432
@@ -46,7 +60,7 @@ class DatabaseSettings(BaseSettings):
     db_postgres_username: str
     db_postgres_password: str
     db_postgres_timeout: PositiveInt = 5
-    db_postgres_driver: Literal["psycopg", "pycopg2"] = "psycopg"
+    db_postgres_driver: Literal["psycopg", "pycopg2", "asyncpg"] = "asyncpg"
 
     @property
     def postgres_host_url(self):
@@ -64,7 +78,7 @@ class DatabaseSettings(BaseSettings):
 class ExtraSettings(BaseSettings): ...
 
 
-class Settings(DatabaseSettings, LoggingSettings, ExtraSettings):
+class Settings(DatabaseSettings, RedisSettings, LoggingSettings, ExtraSettings):
     app_title: str = "Short Url"
     app_description: str = APP_DESC
     mock_external_services: bool = False
