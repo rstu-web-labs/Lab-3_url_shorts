@@ -1,21 +1,42 @@
+from datetime import date
+from sqlalchemy import insert
+from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
+from fastapi import APIRouter, HTTPException, Depends
+from fastapi.responses import RedirectResponse
 from http import HTTPStatus
-
-from celery.states import SUCCESS
-from fastapi import APIRouter
-
-from app.api.schemas.cadastr import CadastrServiceResponse
-from app.core.schemas import CadastrCalcResultSchema, CadastrDataSchema
-from app.tasks import calculate_cadastr_data
-from app.worker import celery
+from app.schemas.url import URLCreate, Urls, get_db, generate_short_url
+from app.models.url_map import UrlMap
 
 router = APIRouter()
 
+@router.post("/api/url/", response_model=Urls)
+async def create_url(url_in: URLCreate, db: Session = Depends(get_db)):
+    if not url_in.short_url:
+        short_url = generate_short_url()
+        while db.query(UrlMap).filter(UrlMap.short_url == short_url).first():
+            short_url = generate_short_url()
+    else:
+        short_url = url_in.short_url
 
-@router.post("/api/url/", status_code=HTTPStatus.ACCEPTED)
-def read_item(item_id: int, q: Union[str, None] = None):
-    return {"item_id": item_id, "q": q}
+    url = UrlMap(short_url=short_url, url=url_in.original_url, created_at=date.today())
 
+    try:
+        stmt = insert(UrlMap).values(url=url_in.original_url, short_url=short_url, created_at=date.today())
+        result = db.execute(stmt)
+        db.commit()
+    except IntegrityError as err:
+        print(str(err))
+        db.rollback()
+        raise HTTPException(status_code=HTTPStatus.BAD_REQUEST, detail="Failed to create URL")
 
-@router.get("/api/url/{short_url}")
-def get_status(item_id: int, item: Item):
-    return {"item_name": item.name, "item_id": item_id}
+    print(url.id)
+    return {"url": url.url, "short_url": url.short_url}
+
+@router.get("/url/{short_url}/", summary="Get Url")
+def get_url(short_url: str, db: Session = Depends(get_db)):
+    url_map = db.query(UrlMap).filter(UrlMap.short_url == short_url).first()
+    if url_map:
+        return RedirectResponse(url_map.url)
+    else:
+        raise HTTPException(status_code=HTTPStatus.NOT_FOUND, detail="URL not found")
